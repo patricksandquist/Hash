@@ -17,7 +17,9 @@ class LinkedList
 
   def initialize
     @head = Link.new
-    @tail = @head
+    @tail = Link.new
+    @head.next = @tail
+    @tail.prev = @head
   end
 
   def [](i)
@@ -30,11 +32,11 @@ class LinkedList
   end
 
   def last
-    @tail
+    @tail.prev
   end
 
   def empty?
-    @head == @tail
+    @head.next == @tail
   end
 
   def get(key)
@@ -43,6 +45,8 @@ class LinkedList
       return pointer.val if pointer.key == key
       pointer = pointer.next
     end
+
+    nil
   end
 
   def get_link(key)
@@ -51,6 +55,8 @@ class LinkedList
       return pointer if pointer.key == key
       pointer = pointer.next
     end
+
+    nil
   end
 
   def include?(key)
@@ -64,42 +70,44 @@ class LinkedList
   end
 
   def insert(key, val)
-    link = Link.new(key, val, nil, @tail)
-    @tail.next = link
-    @tail = link
+    link = Link.new(key, val, @tail, @tail.prev)
+    @tail.prev.next = link
+    @tail.prev = link
+
     link
   end
 
   def unshift(link)
     link_next = @head.next
     @head.next = link
+    link.prev = @head
     link.next = link_next
-    if link.next.nil?
-      @tail = link
-    else
-      link.next.prev = link
-    end
+
+    link.next.prev = link
+
   end
 
   def remove(key)
     return nil unless include?(key)
+
     pointer = @head
+
     until pointer.next.key == key
       pointer = pointer.next
     end
 
-    if pointer.next == last
-      @tail = pointer
-      pointer.next = nil
-    else
-      pointer.next = pointer.next.next
-      pointer.next.prev = pointer
-    end
+    # if pointer.next == last
+    #   @tail = pointer
+    #   pointer.next = nil
+    # else
+    pointer.next = pointer.next.next
+    pointer.next.prev = pointer
+    #end
   end
 
   def remove_last
-    @tail.prev.next = nil
-    @tail = @tail.prev
+    @tail.prev = @tail.prev.prev
+    @tail.prev.next = @tail
   end
 
   def each
